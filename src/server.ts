@@ -1,9 +1,38 @@
 
 
-import express, { Application, Request, Response } from "express"   
+import express, { Application, Request, Response } from "express"
+import {Pool} from "pg"   
 const app : Application = express()
 const port = 5000;
 app.use(express.json());
+
+const pool =new Pool({
+    connectionString : "ppostgresql://neondb_owner:npg_pqNiWRyBEw21@ep-old-water-be928wr5.c-9.us-east-2.aws.neon.tech/neondb?sslmode=false&channel_binding=require"
+});
+// console.log(pool);
+const initDB = async () => {
+    try{
+        await pool.query(`
+            CREATE TABLE users(
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255),
+            email VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            age INT,
+            is_Active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+            )
+            
+
+        `)
+        console.log("Database Connected");
+
+    } catch(error){
+        console.log(error);
+    }
+};
+initDB();
 
 app.get('/', (req : Request, res : Response) => {
     console.log(req);
@@ -15,7 +44,14 @@ res.status(200).json({
 });
 })
 app.post("/", async(req : Request, res : Response)=>{
-    console.log(req.body);
+    // console.log(req.body);
+    const {name , age, password} = req.body;
+    res.status(200).json({
+    success : true,
+    message :"this is a test api",
+    data: {name , age},
+    
+});
 });
 app.listen(port, () => {
   console.log(`The express server is running on port ${port}`)
