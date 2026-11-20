@@ -13,10 +13,10 @@ const pool =new Pool({
 const initDB = async () => {
     try{
         await pool.query(`
-            CREATE TABLE users(
+            CREATE TABLE IF NOT EXISTS users(
             id SERIAL PRIMARY KEY,
             name VARCHAR(255),
-            email VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
             age INT,
             is_Active BOOLEAN DEFAULT true,
@@ -43,16 +43,115 @@ res.status(200).json({
     author: "Khasru",
 });
 })
-app.post("/", async(req : Request, res : Response)=>{
-    // console.log(req.body);
-    const {name , age, password} = req.body;
-    res.status(200).json({
+app.post("/api/v1/users", async(req : Request, res : Response)=>{
+    try {
+        // console.log(req.body);
+    const {name , email, age, password} = req.body;
+    const result = await pool.query(`
+        INSERT INTO users (name, email, age, password) VALUES
+        ($1,$2,$3,$4) RETURNING *
+        `,
+        [name,email,age,password],
+    );
+    res.status(201).json({
     success : true,
-    message :"this is a test api",
-    data: {name , age},
+    message :"  User Created!!",
+    data: result.rows[0],
     
 });
+    } catch (error : any) {
+        res.status(500).json({
+        success : false,
+        message : error?.message,
+        error : error
+    
+    
+        });
+    }
 });
+
+app.get("/api/v1/users", async(req : Request, res : Response)=>{
+    try {
+        const result = await pool.query(`
+            SELECT * FROM users
+            `)
+            res.status(200).json({
+            success : true,
+            message :"  User Retrieved Successfully!!",
+             data: result.rows
+    
+});
+            console.log(result);
+    } catch (error: any) {
+        res.status(500).json({
+        success : false,
+        message : error?.message,
+        error : error
+    
+    
+        });
+    }
+});
+app.get("/api/v1/users/:id", async(req : Request, res : Response)=>{
+    try {
+        const {id} = req.params;
+        const result = await pool.query(`
+            SELECT * FROM users
+            WHERE id = $1;
+            `,
+            [id],
+        );
+
+        res.status(200).json({
+            success : true,
+            message :"  User Retrieved Successfully!!",
+             data: result.rows[0]
+    
+          });
+    } catch (error: any) {
+        res.status(500).json({
+        success : false,
+        message : error?.message,
+        error : error
+    
+    
+        });
+    }
+});
+app.put("/api/v1/users/:id", async(req : Request, res : Response)=>{
+    try {
+        const {id} = req.params;
+        const {name,age, password, is_Active} = req.body;
+        const result = await pool.query(`
+            UPDATE users
+            SET 
+            name = COALESCE ($1, name),
+            password = COALESCE ($2, password),
+            age = COALESCE ($3, age),
+            is_Active = COALESCE ($4, is_Active),
+            updated_at = NOW()
+            WHERE id=$5 RETURNING *
+            `,
+            [name ?? null, password ?? null, age ?? null, is_Active ?? null, id]
+        );
+        console.log(result);
+        res.status(200).json({
+            success : true,
+            message :"  User updated Successfully!!",
+             data: result.rows[0]
+    
+          });
+    } catch (error: any) {
+        res.status(500).json({
+        success : false,
+        message : error?.message,
+        error : error
+    
+    
+        });
+    }
+});
+
 app.listen(port, () => {
   console.log(`The express server is running on port ${port}`)
 })
