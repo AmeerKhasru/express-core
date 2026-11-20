@@ -2,12 +2,13 @@
 
 import express, { Application, Request, Response } from "express"
 import {Pool} from "pg"   
+import config from "./config";
 const app : Application = express()
-const port = 5000;
+
 app.use(express.json());
 
 const pool =new Pool({
-    connectionString : "ppostgresql://neondb_owner:npg_pqNiWRyBEw21@ep-old-water-be928wr5.c-9.us-east-2.aws.neon.tech/neondb?sslmode=false&channel_binding=require"
+    connectionString : config.connection_string,
 });
 // console.log(pool);
 const initDB = async () => {
@@ -78,7 +79,7 @@ app.get("/api/v1/users", async(req : Request, res : Response)=>{
             `)
 
             if (result.rowCount===0){
-            res.status(404).json({
+            return res.status(404).json({
             success : true,
             message :"  User Not found!!",
             });
@@ -151,7 +152,7 @@ app.put("/api/v1/users/:id", async(req : Request, res : Response)=>{
             [name ?? null, password ?? null, age ?? null, is_Active ?? null, id]
         );
         if (result.rowCount===0){
-            res.status(404).json({
+            return res.status(404).json({
             success : false,
             message :"  User Not Found!!",
             });
@@ -186,7 +187,7 @@ app.delete("/api/v1/users/:id", async(req : Request, res : Response)=>{
         );
 
         if (result.rowCount===0){
-            res.status(404).json({
+            return res.status(404).json({
             success : false,
             message :"  User not Found!!",
             });
@@ -208,6 +209,6 @@ app.delete("/api/v1/users/:id", async(req : Request, res : Response)=>{
         });
     }
 });
-app.listen(port, () => {
-  console.log(`The express server is running on port ${port}`)
+app.listen(config.port, () => {
+  console.log(`The express server is running on port ${config.port}`)
 })
