@@ -53,12 +53,7 @@ app.post("/api/v1/users", async(req : Request, res : Response)=>{
         `,
         [name,email,age,password],
     );
-    if (result.rowCount===0){
-            return res.status(404).json({
-            success : false,
-            message :"  User Not found!!",
-            });
-        }
+   
     res.status(201).json({
     success : true,
     message :"  User Created!!",
