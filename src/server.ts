@@ -53,6 +53,12 @@ app.post("/api/v1/users", async(req : Request, res : Response)=>{
         `,
         [name,email,age,password],
     );
+    if (result.rowCount===0){
+            return res.status(404).json({
+            success : false,
+            message :"  User Not found!!",
+            });
+        }
     res.status(201).json({
     success : true,
     message :"  User Created!!",
@@ -75,13 +81,21 @@ app.get("/api/v1/users", async(req : Request, res : Response)=>{
         const result = await pool.query(`
             SELECT * FROM users
             `)
+
+            if (result.rowCount===0){
+            res.status(404).json({
+            success : true,
+            message :"  User Not found!!",
+            });
+        }
+
             res.status(200).json({
             success : true,
             message :"  User Retrieved Successfully!!",
              data: result.rows
     
 });
-            console.log(result);
+            // console.log(result);
     } catch (error: any) {
         res.status(500).json({
         success : false,
@@ -101,6 +115,13 @@ app.get("/api/v1/users/:id", async(req : Request, res : Response)=>{
             `,
             [id],
         );
+
+         if (result.rowCount===0){
+                return res.status(404).json({
+            success : false,
+            message :"  User Not Found!!",
+            });
+            }
 
         res.status(200).json({
             success : true,
@@ -134,6 +155,13 @@ app.put("/api/v1/users/:id", async(req : Request, res : Response)=>{
             `,
             [name ?? null, password ?? null, age ?? null, is_Active ?? null, id]
         );
+        if (result.rowCount===0){
+            res.status(404).json({
+            success : false,
+            message :"  User Not Found!!",
+            });
+        }
+
         console.log(result);
         res.status(200).json({
             success : true,
@@ -161,6 +189,13 @@ app.delete("/api/v1/users/:id", async(req : Request, res : Response)=>{
             `,
             [id]
         );
+
+        if (result.rowCount===0){
+            res.status(404).json({
+            success : false,
+            message :"  User not Found!!",
+            });
+        }
 
         res.status(200).json({
             success : true,
