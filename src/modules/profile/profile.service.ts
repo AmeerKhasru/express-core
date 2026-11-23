@@ -1,8 +1,11 @@
 import { pool } from "../../db";
 
+
 const createProfileIntoDB = async (payLoad : any) =>{
 
     const {user_id, bio, address, phone, gender}= payLoad;
+    
+
     const user = await pool.query(`
             SELECT * FROM users
             WHERE id = $1;
