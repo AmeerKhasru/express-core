@@ -9,20 +9,13 @@ import { profileRoute } from "./modules/profile/profile.route";
 import { authRoute } from "./modules/auth/auth.route";
 const app : Application = express()
 import fs from "fs"
+import logger from "./middleware/logger";
 
 app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({extended:true}));
 
-app.use((req, res, next) => {
-//   console.log("Method -> URL -> Time : ", req.method, req.url, Date.now());
-    const log = `\n method :${req.method} | URL : ${req.url} | Date : ${Date.now()} \n`;
-    fs.appendFile("logger.tx", log,(err)=>{
-        console.log(err);
-    });
-
-  next();
-});
+app.use(logger);
 
 app.use("/api/v1/users",userRoute);
 app.use("/api/v1/profile",profileRoute);
