@@ -1,0 +1,5 @@
+
+ method :{$req.method} | URL : {$req.url} | Date : {$Date.now()}
+ method :{$req.method} | URL : {$req.url} | Date : {$Date.now()} 
+
+ method :GET | URL : / | Date : 1795697288036 
